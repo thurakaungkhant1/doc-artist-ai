@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Presentation, Sparkles, Bold, Italic, Heading1, Heading2, Heading3, FileDown, Table } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { Toggle } from "@/components/ui/toggle";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
+import { useConfetti } from "@/hooks/useConfetti";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 interface TextEditorProps {
   onAskAI: (question: string) => void;
@@ -43,11 +45,13 @@ const templateColors = {
 const TextEditor = ({ onAskAI }: TextEditorProps) => {
   const [text, setText] = useState("");
   const [isConverting, setIsConverting] = useState(false);
+  const [convertingType, setConvertingType] = useState<"word" | "powerpoint" | "pdf" | "excel" | null>(null);
   const [fileName, setFileName] = useState("");
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [headingLevel, setHeadingLevel] = useState<"none" | "h1" | "h2" | "h3">("none");
   const [slideTemplate, setSlideTemplate] = useState<SlideTemplate>("professional");
+  const { triggerConfetti } = useConfetti();
 
   const getFileName = (extension: string) => {
     const name = fileName.trim() || "document";
@@ -61,6 +65,7 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
     }
 
     setIsConverting(true);
+    setConvertingType("word");
     try {
       const paragraphs = text.split("\n").filter(p => p.trim());
       
@@ -110,12 +115,14 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
 
       const blob = await Packer.toBlob(doc);
       saveAs(blob, getFileName("docx"));
+      triggerConfetti();
       toast.success("Word ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
     } catch (error) {
       console.error(error);
       toast.error("ပြောင်းလဲရာတွင် အမှားဖြစ်သွားပါသည်");
     } finally {
       setIsConverting(false);
+      setConvertingType(null);
     }
   };
 
@@ -126,6 +133,7 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
     }
 
     setIsConverting(true);
+    setConvertingType("powerpoint");
     try {
       const pptx = new pptxgen();
       pptx.author = "DocConverter";
@@ -193,12 +201,14 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
       }
 
       await pptx.writeFile({ fileName: getFileName("pptx") });
+      triggerConfetti();
       toast.success("PowerPoint ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
     } catch (error) {
       console.error(error);
       toast.error("ပြောင်းလဲရာတွင် အမှားဖြစ်သွားပါသည်");
     } finally {
       setIsConverting(false);
+      setConvertingType(null);
     }
   };
 
@@ -209,6 +219,7 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
     }
 
     setIsConverting(true);
+    setConvertingType("pdf");
     try {
       const pdf = new jsPDF();
       const paragraphs = text.split("\n").filter(p => p.trim());
@@ -252,12 +263,14 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
       });
 
       pdf.save(getFileName("pdf"));
+      triggerConfetti();
       toast.success("PDF ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
     } catch (error) {
       console.error(error);
       toast.error("ပြောင်းလဲရာတွင် အမှားဖြစ်သွားပါသည်");
     } finally {
       setIsConverting(false);
+      setConvertingType(null);
     }
   };
 
@@ -268,6 +281,7 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
     }
 
     setIsConverting(true);
+    setConvertingType("excel");
     try {
       const paragraphs = text.split("\n").filter(p => p.trim());
       
@@ -288,12 +302,14 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
       XLSX.utils.book_append_sheet(wb, ws, "Content");
       
       XLSX.writeFile(wb, getFileName("xlsx"));
+      triggerConfetti();
       toast.success("Excel ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
     } catch (error) {
       console.error(error);
       toast.error("ပြောင်းလဲရာတွင် အမှားဖြစ်သွားပါသည်");
     } finally {
       setIsConverting(false);
+      setConvertingType(null);
     }
   };
 
@@ -306,12 +322,19 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
-      className="glass rounded-2xl p-6 shadow-elevated"
-    >
+    <>
+      <AnimatePresence>
+        {isConverting && convertingType && (
+          <LoadingSkeleton type={convertingType} />
+        )}
+      </AnimatePresence>
+      
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+        className="glass rounded-2xl p-6 shadow-elevated"
+      >
       <motion.div 
         className="mb-4 flex items-center gap-3"
         initial={{ opacity: 0, x: -20 }}
@@ -576,7 +599,8 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
           </Button>
         </motion.div>
       </motion.div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 };
 

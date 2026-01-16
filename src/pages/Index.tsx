@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { FileText, Sparkles, ArrowRight, Presentation, FileDown, Table } from "lucide-react";
 import TextEditor from "@/components/TextEditor";
 import AIChatBox from "@/components/AIChatBox";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -95,47 +96,59 @@ const Index = () => {
       <div className="relative">
         {/* Header */}
         <header className="container pt-8 pb-6">
-          <motion.div
-            initial={{ opacity: 0, y: -30, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ 
-              duration: 0.6, 
-              type: "spring",
-              stiffness: 100,
-            }}
-            className="flex items-center justify-center gap-4"
-          >
-            <motion.div 
-              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-glow animate-glow-ring"
-              whileHover={{ 
-                scale: 1.1, 
-                rotate: 5,
+          <div className="flex items-center justify-between">
+            <div className="w-10" /> {/* Spacer for centering */}
+            
+            <motion.div
+              initial={{ opacity: 0, y: -30, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ 
+                duration: 0.6, 
+                type: "spring",
+                stiffness: 100,
               }}
-              whileTap={{ scale: 0.95 }}
-              variants={floatingVariants}
-              animate="animate"
+              className="flex items-center gap-4"
             >
-              <FileText className="h-7 w-7 text-primary-foreground" />
+              <motion.div 
+                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-glow animate-glow-ring"
+                whileHover={{ 
+                  scale: 1.1, 
+                  rotate: 5,
+                }}
+                whileTap={{ scale: 0.95 }}
+                variants={floatingVariants}
+                animate="animate"
+              >
+                <FileText className="h-7 w-7 text-primary-foreground" />
+              </motion.div>
+              <div>
+                <motion.h1 
+                  className="text-3xl font-bold"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                >
+                  <span className="gradient-text animate-gradient bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] bg-clip-text text-transparent">DocConverter</span>
+                </motion.h1>
+                <motion.p 
+                  className="text-muted-foreground"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
+                >
+                  Text → Word & PowerPoint
+                </motion.p>
+              </div>
             </motion.div>
-            <div>
-              <motion.h1 
-                className="text-3xl font-bold"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-              >
-                <span className="gradient-text animate-gradient bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] bg-clip-text text-transparent">DocConverter</span>
-              </motion.h1>
-              <motion.p 
-                className="text-muted-foreground"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-              >
-                Text → Word & PowerPoint
-              </motion.p>
-            </div>
-          </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+            >
+              <DarkModeToggle />
+            </motion.div>
+          </div>
         </header>
 
         {/* Hero Section */}
