@@ -309,164 +309,273 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
       className="glass rounded-2xl p-6 shadow-elevated"
     >
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+      <motion.div 
+        className="mb-4 flex items-center gap-3"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <motion.div 
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10"
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          whileTap={{ scale: 0.95 }}
+        >
           <FileText className="h-5 w-5 text-primary" />
-        </div>
+        </motion.div>
         <div>
           <h2 className="text-lg font-semibold text-foreground">စာသားရိုက်ထည့်ပါ</h2>
           <p className="text-sm text-muted-foreground">Word သို့မဟုတ် PowerPoint အဖြစ်ပြောင်းလဲနိုင်ပါသည်</p>
         </div>
-      </div>
+      </motion.div>
 
       {/* File Name Input */}
-      <div className="mb-4">
+      <motion.div 
+        className="mb-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
         <Input
           value={fileName}
           onChange={(e) => setFileName(e.target.value)}
           placeholder="ဖိုင်အမည် (ဥပမာ: my-document)"
-          className="bg-secondary/50 border-0 focus:ring-2 focus:ring-primary/20"
+          className="bg-secondary/50 border-0 focus:ring-2 focus:ring-primary/20 transition-all duration-300 focus:scale-[1.01]"
         />
-      </div>
+      </motion.div>
 
       {/* Formatting Toolbar */}
-      <div className="mb-4 flex flex-wrap items-center gap-2 p-2 bg-secondary/30 rounded-lg">
-        <Toggle 
-          pressed={isBold} 
-          onPressedChange={setIsBold}
-          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-        >
-          <Bold className="h-4 w-4" />
-        </Toggle>
-        <Toggle 
-          pressed={isItalic} 
-          onPressedChange={setIsItalic}
-          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-        >
-          <Italic className="h-4 w-4" />
-        </Toggle>
+      <motion.div 
+        className="mb-4 flex flex-wrap items-center gap-2 p-2 bg-secondary/30 rounded-lg"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+          <Toggle 
+            pressed={isBold} 
+            onPressedChange={setIsBold}
+            className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground transition-all duration-200"
+          >
+            <Bold className="h-4 w-4" />
+          </Toggle>
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+          <Toggle 
+            pressed={isItalic} 
+            onPressedChange={setIsItalic}
+            className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground transition-all duration-200"
+          >
+            <Italic className="h-4 w-4" />
+          </Toggle>
+        </motion.div>
         <div className="h-6 w-px bg-border mx-1" />
-        <Toggle 
-          pressed={headingLevel === "h1"} 
-          onPressedChange={() => setHeadingLevel(headingLevel === "h1" ? "none" : "h1")}
-          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-        >
-          <Heading1 className="h-4 w-4" />
-        </Toggle>
-        <Toggle 
-          pressed={headingLevel === "h2"} 
-          onPressedChange={() => setHeadingLevel(headingLevel === "h2" ? "none" : "h2")}
-          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-        >
-          <Heading2 className="h-4 w-4" />
-        </Toggle>
-        <Toggle 
-          pressed={headingLevel === "h3"} 
-          onPressedChange={() => setHeadingLevel(headingLevel === "h3" ? "none" : "h3")}
-          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-        >
-          <Heading3 className="h-4 w-4" />
-        </Toggle>
-      </div>
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+          <Toggle 
+            pressed={headingLevel === "h1"} 
+            onPressedChange={() => setHeadingLevel(headingLevel === "h1" ? "none" : "h1")}
+            className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground transition-all duration-200"
+          >
+            <Heading1 className="h-4 w-4" />
+          </Toggle>
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+          <Toggle 
+            pressed={headingLevel === "h2"} 
+            onPressedChange={() => setHeadingLevel(headingLevel === "h2" ? "none" : "h2")}
+            className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground transition-all duration-200"
+          >
+            <Heading2 className="h-4 w-4" />
+          </Toggle>
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+          <Toggle 
+            pressed={headingLevel === "h3"} 
+            onPressedChange={() => setHeadingLevel(headingLevel === "h3" ? "none" : "h3")}
+            className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground transition-all duration-200"
+          >
+            <Heading3 className="h-4 w-4" />
+          </Toggle>
+        </motion.div>
+      </motion.div>
 
       {/* Slide Template Selector */}
-      <div className="mb-4">
+      <motion.div 
+        className="mb-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
         <label className="text-sm font-medium text-foreground mb-2 block">Slide Template</label>
         <Select value={slideTemplate} onValueChange={(v) => setSlideTemplate(v as SlideTemplate)}>
-          <SelectTrigger className="bg-secondary/50 border-0">
+          <SelectTrigger className="bg-secondary/50 border-0 transition-all duration-300 hover:bg-secondary/70">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="professional">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-[#3B82F6]" />
+                <motion.div 
+                  className="w-4 h-4 rounded bg-[#3B82F6]"
+                  whileHover={{ scale: 1.2 }}
+                />
                 Professional
               </div>
             </SelectItem>
             <SelectItem value="modern">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-[#8B5CF6]" />
+                <motion.div 
+                  className="w-4 h-4 rounded bg-[#8B5CF6]"
+                  whileHover={{ scale: 1.2 }}
+                />
                 Modern
               </div>
             </SelectItem>
             <SelectItem value="creative">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-[#F59E0B]" />
+                <motion.div 
+                  className="w-4 h-4 rounded bg-[#F59E0B]"
+                  whileHover={{ scale: 1.2 }}
+                />
                 Creative
               </div>
             </SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </motion.div>
 
-      <Textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="ဤနေရာတွင် သင်၏စာသားကို ရိုက်ထည့်ပါ...
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="ဤနေရာတွင် သင်၏စာသားကို ရိုက်ထည့်ပါ...
 
 ပထမစာကြောင်းသည် ခေါင်းစဉ်ဖြစ်ပါမည်။
 ကျန်စာကြောင်းများသည် အကြောင်းအရာဖြစ်ပါမည်။"
-        className="min-h-[180px] resize-none border-0 bg-secondary/50 text-base leading-relaxed placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20"
-        style={{
-          fontWeight: isBold ? "bold" : "normal",
-          fontStyle: isItalic ? "italic" : "normal",
-        }}
-      />
+          className="min-h-[180px] resize-none border-0 bg-secondary/50 text-base leading-relaxed placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20 transition-all duration-300 focus:scale-[1.01]"
+          style={{
+            fontWeight: isBold ? "bold" : "normal",
+            fontStyle: isItalic ? "italic" : "normal",
+          }}
+        />
+      </motion.div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Button
-          variant="word"
-          size="lg"
-          onClick={convertToWord}
-          disabled={isConverting}
+      <motion.div 
+        className="mt-6 flex flex-wrap gap-3"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+      >
+        <motion.div 
           className="flex-1 min-w-[100px]"
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <FileText className="h-5 w-5" />
-          Word
-        </Button>
-        <Button
-          variant="powerpoint"
-          size="lg"
-          onClick={convertToPowerPoint}
-          disabled={isConverting}
+          <Button
+            variant="word"
+            size="lg"
+            onClick={convertToWord}
+            disabled={isConverting}
+            className="w-full transition-all duration-300"
+          >
+            <motion.div
+              animate={isConverting ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
+            >
+              <FileText className="h-5 w-5" />
+            </motion.div>
+            Word
+          </Button>
+        </motion.div>
+        <motion.div 
           className="flex-1 min-w-[100px]"
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <Presentation className="h-5 w-5" />
-          PPT
-        </Button>
-        <Button
-          variant="pdf"
-          size="lg"
-          onClick={convertToPDF}
-          disabled={isConverting}
+          <Button
+            variant="powerpoint"
+            size="lg"
+            onClick={convertToPowerPoint}
+            disabled={isConverting}
+            className="w-full transition-all duration-300"
+          >
+            <motion.div
+              animate={isConverting ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
+            >
+              <Presentation className="h-5 w-5" />
+            </motion.div>
+            PPT
+          </Button>
+        </motion.div>
+        <motion.div 
           className="flex-1 min-w-[100px]"
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <FileDown className="h-5 w-5" />
-          PDF
-        </Button>
-        <Button
-          variant="excel"
-          size="lg"
-          onClick={convertToExcel}
-          disabled={isConverting}
+          <Button
+            variant="pdf"
+            size="lg"
+            onClick={convertToPDF}
+            disabled={isConverting}
+            className="w-full transition-all duration-300"
+          >
+            <motion.div
+              animate={isConverting ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
+            >
+              <FileDown className="h-5 w-5" />
+            </motion.div>
+            PDF
+          </Button>
+        </motion.div>
+        <motion.div 
           className="flex-1 min-w-[100px]"
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <Table className="h-5 w-5" />
-          Excel
-        </Button>
-        <Button
-          variant="gradient"
-          size="lg"
-          onClick={handleAIAssist}
+          <Button
+            variant="excel"
+            size="lg"
+            onClick={convertToExcel}
+            disabled={isConverting}
+            className="w-full transition-all duration-300"
+          >
+            <motion.div
+              animate={isConverting ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
+            >
+              <Table className="h-5 w-5" />
+            </motion.div>
+            Excel
+          </Button>
+        </motion.div>
+        <motion.div 
           className="flex-1 min-w-[100px]"
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <Sparkles className="h-5 w-5" />
-          AI
-        </Button>
-      </div>
+          <Button
+            variant="gradient"
+            size="lg"
+            onClick={handleAIAssist}
+            className="w-full transition-all duration-300"
+          >
+            <motion.div
+              animate={{ rotate: [0, 15, -15, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Sparkles className="h-5 w-5" />
+            </motion.div>
+            AI
+          </Button>
+        </motion.div>
+      </motion.div>
     </motion.div>
   );
 };
