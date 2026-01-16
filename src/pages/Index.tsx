@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, Sparkles, ArrowRight } from "lucide-react";
+import { FileText, Sparkles, ArrowRight, Presentation } from "lucide-react";
 import TextEditor from "@/components/TextEditor";
 import AIChatBox from "@/components/AIChatBox";
 
@@ -62,8 +62,8 @@ const Index = () => {
         </section>
 
         {/* Main Content */}
-        <main className="container pb-12">
-          <div className="grid lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        <main className="container pb-12 px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
             {/* Text Editor */}
             <TextEditor onAskAI={handleAskAI} />
 
@@ -87,13 +87,13 @@ const Index = () => {
               {
                 icon: FileText,
                 title: "Word Document",
-                description: "စာသားကို .docx ဖိုင်အဖြစ်ပြောင်းပါ",
+                description: "Bold, Italic, Headings နှင့် .docx ဖိုင်",
                 color: "from-[hsl(217,91%,60%)] to-[hsl(217,91%,50%)]",
               },
               {
-                icon: Sparkles,
+                icon: Presentation,
                 title: "PowerPoint",
-                description: "Presentation slides အဖြစ်ပြောင်းပါ",
+                description: "Professional, Modern, Creative templates",
                 color: "from-[hsl(16,100%,50%)] to-[hsl(16,100%,40%)]",
               },
               {
@@ -123,7 +123,7 @@ const Index = () => {
         {/* Footer */}
         <footer className="container pb-8">
           <p className="text-center text-sm text-muted-foreground">
-            © 2024 DocConverter - Text to Document Converter
+            © 2024 DocConverter - <span className="font-medium">thurakaungkhant</span>
           </p>
         </footer>
       </div>

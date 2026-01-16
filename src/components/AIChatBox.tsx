@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Bot, User, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -14,6 +15,8 @@ interface AIChatBoxProps {
   initialMessage?: string;
   onClearInitial?: () => void;
 }
+
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 
 const AIChatBox = ({ initialMessage, onClearInitial }: AIChatBoxProps) => {
   const [messages, setMessages] = useState<Message[]>([
@@ -42,6 +45,34 @@ const AIChatBox = ({ initialMessage, onClearInitial }: AIChatBoxProps) => {
     }
   }, [initialMessage]);
 
+  const streamChat = async (userMessages: Message[]) => {
+    const response = await fetch(CHAT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({
+        messages: userMessages.map((m) => ({ role: m.role, content: m.content })),
+        type: "general",
+      }),
+    });
+
+    if (response.status === 429) {
+      toast.error("Rate limit exceeded. Please try again later.");
+      throw new Error("Rate limited");
+    }
+    if (response.status === 402) {
+      toast.error("Credits exhausted. Please add more credits.");
+      throw new Error("Payment required");
+    }
+    if (!response.ok || !response.body) {
+      throw new Error("Failed to start stream");
+    }
+
+    return response;
+  };
+
   const handleSend = async (messageText?: string) => {
     const text = messageText || input.trim();
     if (!text || isLoading) return;
@@ -52,28 +83,65 @@ const AIChatBox = ({ initialMessage, onClearInitial }: AIChatBoxProps) => {
       content: text,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response (in production, this would call actual AI API)
-    setTimeout(() => {
-      const responses = [
-        "သင်၏စာသားကို ပြုပြင်ပြီးပါပြီ။ ပိုမိုရှင်းလင်းပြီး ဖတ်ရလွယ်ကူစေရန် ပြုလုပ်ထားပါသည်။",
-        "ဤအကြံပြုချက်များကို သုံးနိုင်ပါသည်: စာပိုဒ်များကို ခွဲခြားပါ၊ ခေါင်းစဉ်ကို ရှင်းလင်းစွာရေးပါ။",
-        "Document ပြုလုပ်ရာတွင် - ခေါင်းစဉ်ကို ပထမစာကြောင်းတွင်ထည့်ပါ၊ အချက်များကို နောက်စာကြောင်းများတွင် ရေးပါ။",
-        "PowerPoint အတွက် - စာကြောင်းတိုတိုများ ရေးပါ၊ Slide တစ်ခုလျှင် အချက် ၄ ခုသာထည့်ပါ။",
-      ];
-      
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: responses[Math.floor(Math.random() * responses.length)],
-      };
+    try {
+      const response = await streamChat(newMessages);
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let assistantContent = "";
 
-      setMessages((prev) => [...prev, aiMessage]);
+      // Add initial assistant message
+      const assistantId = (Date.now() + 1).toString();
+      setMessages((prev) => [...prev, { id: assistantId, role: "assistant", content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId ? { ...m, content: assistantContent } : m
+                )
+              );
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      if (!(error instanceof Error && (error.message === "Rate limited" || error.message === "Payment required"))) {
+        toast.error("AI နှင့်ချိတ်ဆက်ရာတွင် အမှားဖြစ်သွားပါသည်");
+      }
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -127,13 +195,13 @@ const AIChatBox = ({ initialMessage, onClearInitial }: AIChatBoxProps) => {
                     : "bg-secondary text-secondary-foreground"
                 }`}
               >
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {isLoading && (
+        {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
