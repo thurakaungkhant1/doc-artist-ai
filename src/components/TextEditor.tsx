@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Presentation, Sparkles, Bold, Italic, Heading1, Heading2, Heading3, FileDown, Table } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,13 @@ import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
 import { useConfetti } from "@/hooks/useConfetti";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
+import { useExportHistory } from "@/hooks/useExportHistory";
 
 interface TextEditorProps {
   onAskAI: (question: string) => void;
+  onTextChange?: (text: string) => void;
+  externalText?: string;
+  externalFileName?: string;
 }
 
 type SlideTemplate = "professional" | "modern" | "creative";
@@ -42,16 +46,30 @@ const templateColors = {
   },
 };
 
-const TextEditor = ({ onAskAI }: TextEditorProps) => {
-  const [text, setText] = useState("");
+const TextEditor = ({ onAskAI, onTextChange, externalText, externalFileName }: TextEditorProps) => {
+  const [text, setText] = useState(externalText || "");
   const [isConverting, setIsConverting] = useState(false);
   const [convertingType, setConvertingType] = useState<"word" | "powerpoint" | "pdf" | "excel" | null>(null);
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState(externalFileName || "");
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [headingLevel, setHeadingLevel] = useState<"none" | "h1" | "h2" | "h3">("none");
   const [slideTemplate, setSlideTemplate] = useState<SlideTemplate>("professional");
   const { triggerConfetti } = useConfetti();
+  const { addRecord } = useExportHistory();
+
+  // Sync external text when it changes
+  useEffect(() => {
+    if (externalText !== undefined && externalText !== text) {
+      setText(externalText);
+    }
+  }, [externalText]);
+
+  useEffect(() => {
+    if (externalFileName !== undefined && externalFileName !== fileName) {
+      setFileName(externalFileName);
+    }
+  }, [externalFileName]);
 
   const getFileName = (extension: string) => {
     const name = fileName.trim() || "document";
@@ -114,7 +132,13 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
       });
 
       const blob = await Packer.toBlob(doc);
-      saveAs(blob, getFileName("docx"));
+      const outputFileName = getFileName("docx");
+      saveAs(blob, outputFileName);
+      addRecord({
+        fileName: outputFileName,
+        type: "word",
+        preview: text.slice(0, 50) + (text.length > 50 ? "..." : ""),
+      });
       triggerConfetti();
       toast.success("Word ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
     } catch (error) {
@@ -200,7 +224,13 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
         });
       }
 
-      await pptx.writeFile({ fileName: getFileName("pptx") });
+      const outputFileName = getFileName("pptx");
+      await pptx.writeFile({ fileName: outputFileName });
+      addRecord({
+        fileName: outputFileName,
+        type: "powerpoint",
+        preview: text.slice(0, 50) + (text.length > 50 ? "..." : ""),
+      });
       triggerConfetti();
       toast.success("PowerPoint ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
     } catch (error) {
@@ -262,7 +292,13 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
         yPosition += 5;
       });
 
-      pdf.save(getFileName("pdf"));
+      const outputFileName = getFileName("pdf");
+      pdf.save(outputFileName);
+      addRecord({
+        fileName: outputFileName,
+        type: "pdf",
+        preview: text.slice(0, 50) + (text.length > 50 ? "..." : ""),
+      });
       triggerConfetti();
       toast.success("PDF ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
     } catch (error) {
@@ -301,7 +337,13 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Content");
       
-      XLSX.writeFile(wb, getFileName("xlsx"));
+      const outputFileName = getFileName("xlsx");
+      XLSX.writeFile(wb, outputFileName);
+      addRecord({
+        fileName: outputFileName,
+        type: "excel",
+        preview: text.slice(0, 50) + (text.length > 50 ? "..." : ""),
+      });
       triggerConfetti();
       toast.success("Excel ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
     } catch (error) {

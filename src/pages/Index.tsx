@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { FileText, Sparkles, ArrowRight, Presentation, FileDown, Table } from "lucide-react";
+import { FileText, Sparkles, ArrowRight, Presentation, FileDown, Table, Upload, History } from "lucide-react";
 import TextEditor from "@/components/TextEditor";
 import AIChatBox from "@/components/AIChatBox";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import DropZone from "@/components/DropZone";
+import ExportHistory from "@/components/ExportHistory";
+import { useExportHistory } from "@/hooks/useExportHistory";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -42,6 +45,9 @@ const floatingVariants = {
 
 const Index = () => {
   const [aiQuestion, setAiQuestion] = useState<string>("");
+  const [importedText, setImportedText] = useState<string>("");
+  const [importedFileName, setImportedFileName] = useState<string>("");
+  const { history, clearHistory, removeRecord } = useExportHistory();
 
   const handleAskAI = (question: string) => {
     setAiQuestion(question);
@@ -50,6 +56,11 @@ const Index = () => {
   const clearAiQuestion = () => {
     setAiQuestion("");
   };
+
+  const handleFileContent = useCallback((content: string, fileName: string) => {
+    setImportedText(content);
+    setImportedFileName(fileName);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/30 overflow-hidden">
@@ -215,9 +226,18 @@ const Index = () => {
             initial="hidden"
             animate="visible"
           >
+            {/* Drop Zone */}
+            <motion.div variants={itemVariants}>
+              <DropZone onFileContent={handleFileContent} />
+            </motion.div>
+
             {/* Text Editor */}
             <motion.div variants={itemVariants}>
-              <TextEditor onAskAI={handleAskAI} />
+              <TextEditor 
+                onAskAI={handleAskAI} 
+                externalText={importedText}
+                externalFileName={importedFileName}
+              />
             </motion.div>
 
             {/* AI Chat Box */}
@@ -227,19 +247,34 @@ const Index = () => {
                 onClearInitial={clearAiQuestion}
               />
             </motion.div>
+
+            {/* Export History */}
+            <motion.div variants={itemVariants}>
+              <ExportHistory 
+                history={history}
+                onClear={clearHistory}
+                onRemove={removeRecord}
+              />
+            </motion.div>
           </motion.div>
         </main>
 
         {/* Features */}
         <section className="container pb-12">
           <motion.div
-            className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto"
+            className="grid grid-cols-2 md:grid-cols-6 gap-4 max-w-5xl mx-auto"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
           >
             {[
+              {
+                icon: Upload,
+                title: "Import",
+                description: "Drag & Drop",
+                color: "from-[hsl(280,70%,50%)] to-[hsl(280,70%,40%)]",
+              },
               {
                 icon: FileText,
                 title: "Word",
@@ -269,6 +304,12 @@ const Index = () => {
                 title: "AI",
                 description: "AI ကူညီမည်",
                 color: "from-primary to-accent",
+              },
+              {
+                icon: History,
+                title: "History",
+                description: "မှတ်တမ်းကြည့်ရန်",
+                color: "from-[hsl(200,70%,50%)] to-[hsl(200,70%,40%)]",
               },
             ].map((feature, index) => (
               <motion.div
