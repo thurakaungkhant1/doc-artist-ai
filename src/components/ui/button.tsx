@@ -20,6 +20,7 @@ const buttonVariants = cva(
         word: "bg-[hsl(217,91%,60%)] text-primary-foreground hover:bg-[hsl(217,91%,55%)] shadow-soft hover:shadow-elevated",
         powerpoint: "bg-[hsl(16,100%,50%)] text-primary-foreground hover:bg-[hsl(16,100%,45%)] shadow-soft hover:shadow-elevated",
         pdf: "bg-[hsl(0,72%,51%)] text-primary-foreground hover:bg-[hsl(0,72%,46%)] shadow-soft hover:shadow-elevated",
+        excel: "bg-[hsl(142,71%,45%)] text-primary-foreground hover:bg-[hsl(142,71%,40%)] shadow-soft hover:shadow-elevated",
       },
       size: {
         default: "h-10 px-4 py-2",

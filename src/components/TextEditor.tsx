@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, Presentation, Sparkles, Bold, Italic, Heading1, Heading2, Heading3, FileDown } from "lucide-react";
+import { FileText, Presentation, Sparkles, Bold, Italic, Heading1, Heading2, Heading3, FileDown, Table } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { saveAs } from "file-saver";
 import { toast } from "sonner";
 import { Toggle } from "@/components/ui/toggle";
 import jsPDF from "jspdf";
+import * as XLSX from "xlsx";
 
 interface TextEditorProps {
   onAskAI: (question: string) => void;
@@ -260,6 +261,42 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
     }
   };
 
+  const convertToExcel = async () => {
+    if (!text.trim()) {
+      toast.error("စာသားရိုက်ထည့်ပါ");
+      return;
+    }
+
+    setIsConverting(true);
+    try {
+      const paragraphs = text.split("\n").filter(p => p.trim());
+      
+      // Create worksheet data
+      const wsData = paragraphs.map((para, index) => {
+        if (index === 0) {
+          return [para]; // Title row
+        }
+        return [para];
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      
+      // Set column width
+      ws['!cols'] = [{ wch: 80 }];
+      
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Content");
+      
+      XLSX.writeFile(wb, getFileName("xlsx"));
+      toast.success("Excel ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
+    } catch (error) {
+      console.error(error);
+      toast.error("ပြောင်းလဲရာတွင် အမှားဖြစ်သွားပါသည်");
+    } finally {
+      setIsConverting(false);
+    }
+  };
+
   const handleAIAssist = () => {
     if (!text.trim()) {
       toast.info("AI ကူညီရန် စာသားရိုက်ထည့်ပါ");
@@ -409,6 +446,16 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
         >
           <FileDown className="h-5 w-5" />
           PDF
+        </Button>
+        <Button
+          variant="excel"
+          size="lg"
+          onClick={convertToExcel}
+          disabled={isConverting}
+          className="flex-1 min-w-[100px]"
+        >
+          <Table className="h-5 w-5" />
+          Excel
         </Button>
         <Button
           variant="gradient"
