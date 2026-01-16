@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, Sparkles, ArrowRight, Presentation, FileDown } from "lucide-react";
+import { FileText, Sparkles, ArrowRight, Presentation, FileDown, Table } from "lucide-react";
 import TextEditor from "@/components/TextEditor";
 import AIChatBox from "@/components/AIChatBox";
 
@@ -103,6 +103,12 @@ const Index = () => {
                 color: "from-[hsl(0,72%,51%)] to-[hsl(0,72%,41%)]",
               },
               {
+                icon: Table,
+                title: "Excel",
+                description: "Spreadsheet Export",
+                color: "from-[hsl(142,71%,45%)] to-[hsl(142,71%,35%)]",
+              },
+              {
                 icon: Sparkles,
                 title: "AI",
                 description: "AI ကူညီမည်",
@@ -129,7 +135,7 @@ const Index = () => {
         {/* Footer */}
         <footer className="container pb-8">
           <p className="text-center text-sm text-muted-foreground">
-            © 2024 DocConverter - <span className="font-medium">thurakaungkhant</span>
+            © 2026 DocConverter - <span className="font-medium">thurakaungkhant</span>
           </p>
         </footer>
       </div>
