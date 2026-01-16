@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, Sparkles, ArrowRight, Presentation } from "lucide-react";
+import { FileText, Sparkles, ArrowRight, Presentation, FileDown } from "lucide-react";
 import TextEditor from "@/components/TextEditor";
 import AIChatBox from "@/components/AIChatBox";
 
@@ -81,25 +81,31 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto"
           >
             {[
               {
                 icon: FileText,
-                title: "Word Document",
-                description: "Bold, Italic, Headings နှင့် .docx ဖိုင်",
+                title: "Word",
+                description: "Bold, Italic, Headings",
                 color: "from-[hsl(217,91%,60%)] to-[hsl(217,91%,50%)]",
               },
               {
                 icon: Presentation,
                 title: "PowerPoint",
-                description: "Professional, Modern, Creative templates",
+                description: "3 Templates",
                 color: "from-[hsl(16,100%,50%)] to-[hsl(16,100%,40%)]",
               },
               {
+                icon: FileDown,
+                title: "PDF",
+                description: "Export လွယ်ကူ",
+                color: "from-[hsl(0,72%,51%)] to-[hsl(0,72%,41%)]",
+              },
+              {
                 icon: Sparkles,
-                title: "AI ကူညီမည်",
-                description: "စာသားကို AI နှင့်တိုးတက်စေပါ",
+                title: "AI",
+                description: "AI ကူညီမည်",
                 color: "from-primary to-accent",
               },
             ].map((feature, index) => (
