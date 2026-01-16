@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, Presentation, Sparkles, Bold, Italic, Heading1, Heading2, Heading3, List } from "lucide-react";
+import { FileText, Presentation, Sparkles, Bold, Italic, Heading1, Heading2, Heading3, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import pptxgen from "pptxgenjs";
 import { saveAs } from "file-saver";
 import { toast } from "sonner";
 import { Toggle } from "@/components/ui/toggle";
+import jsPDF from "jspdf";
 
 interface TextEditorProps {
   onAskAI: (question: string) => void;
@@ -200,6 +201,65 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
     }
   };
 
+  const convertToPDF = async () => {
+    if (!text.trim()) {
+      toast.error("စာသားရိုက်ထည့်ပါ");
+      return;
+    }
+
+    setIsConverting(true);
+    try {
+      const pdf = new jsPDF();
+      const paragraphs = text.split("\n").filter(p => p.trim());
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 20;
+      const maxWidth = pageWidth - margin * 2;
+      let yPosition = 30;
+      const lineHeight = 7;
+
+      paragraphs.forEach((para, index) => {
+        const isFirstLine = index === 0;
+        
+        if (isFirstLine) {
+          pdf.setFontSize(20);
+          pdf.setFont("helvetica", "bold");
+        } else {
+          pdf.setFontSize(12);
+          const fontStyle = isBold && isItalic ? "bolditalic" : isBold ? "bold" : isItalic ? "italic" : "normal";
+          pdf.setFont("helvetica", fontStyle);
+        }
+
+        const lines = pdf.splitTextToSize(para, maxWidth);
+        
+        lines.forEach((line: string) => {
+          if (yPosition > pdf.internal.pageSize.getHeight() - 20) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          
+          if (isFirstLine) {
+            const textWidth = pdf.getTextWidth(line);
+            const xPosition = (pageWidth - textWidth) / 2;
+            pdf.text(line, xPosition, yPosition);
+          } else {
+            pdf.text(line, margin, yPosition);
+          }
+          yPosition += lineHeight;
+        });
+        
+        yPosition += 5;
+      });
+
+      pdf.save(getFileName("pdf"));
+      toast.success("PDF ဖိုင်ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!");
+    } catch (error) {
+      console.error(error);
+      toast.error("ပြောင်းလဲရာတွင် အမှားဖြစ်သွားပါသည်");
+    } finally {
+      setIsConverting(false);
+    }
+  };
+
   const handleAIAssist = () => {
     if (!text.trim()) {
       toast.info("AI ကူညီရန် စာသားရိုက်ထည့်ပါ");
@@ -325,7 +385,7 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
           size="lg"
           onClick={convertToWord}
           disabled={isConverting}
-          className="flex-1 min-w-[140px]"
+          className="flex-1 min-w-[100px]"
         >
           <FileText className="h-5 w-5" />
           Word
@@ -335,19 +395,29 @@ const TextEditor = ({ onAskAI }: TextEditorProps) => {
           size="lg"
           onClick={convertToPowerPoint}
           disabled={isConverting}
-          className="flex-1 min-w-[140px]"
+          className="flex-1 min-w-[100px]"
         >
           <Presentation className="h-5 w-5" />
-          PowerPoint
+          PPT
+        </Button>
+        <Button
+          variant="pdf"
+          size="lg"
+          onClick={convertToPDF}
+          disabled={isConverting}
+          className="flex-1 min-w-[100px]"
+        >
+          <FileDown className="h-5 w-5" />
+          PDF
         </Button>
         <Button
           variant="gradient"
           size="lg"
           onClick={handleAIAssist}
-          className="flex-1 min-w-[140px]"
+          className="flex-1 min-w-[100px]"
         >
           <Sparkles className="h-5 w-5" />
-          AI ကူညီမည်
+          AI
         </Button>
       </div>
     </motion.div>
