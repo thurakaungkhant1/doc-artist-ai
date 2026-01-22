@@ -15,7 +15,8 @@ import * as XLSX from "xlsx";
 import { useConfetti } from "@/hooks/useConfetti";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { useExportHistory } from "@/hooks/useExportHistory";
-
+import { useKeyboardShortcuts, shortcutLabels } from "@/hooks/useKeyboardShortcuts";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 interface TextEditorProps {
   onAskAI: (question: string) => void;
   onTextChange?: (text: string) => void;
@@ -57,6 +58,7 @@ const TextEditor = ({ onAskAI, onTextChange, externalText, externalFileName }: T
   const [slideTemplate, setSlideTemplate] = useState<SlideTemplate>("professional");
   const { triggerConfetti } = useConfetti();
   const { addRecord } = useExportHistory();
+
 
   // Sync external text when it changes
   useEffect(() => {
@@ -363,6 +365,14 @@ const TextEditor = ({ onAskAI, onTextChange, externalText, externalFileName }: T
     onAskAI(`ဒီစာသားကို ပိုကောင်းအောင်ပြင်ပေးပါ: ${text}`);
   };
 
+  // Keyboard shortcuts for quick export
+  useKeyboardShortcuts({
+    onWord: convertToWord,
+    onPowerPoint: convertToPowerPoint,
+    onPDF: convertToPDF,
+    onExcel: convertToExcel,
+  }, !isConverting);
+
   return (
     <>
       <AnimatePresence>
@@ -536,90 +546,126 @@ const TextEditor = ({ onAskAI, onTextChange, externalText, externalFileName }: T
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
       >
-        <motion.div 
-          className="flex-1 min-w-[100px]"
-          whileHover={{ scale: 1.02, y: -2 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Button
-            variant="word"
-            size="lg"
-            onClick={convertToWord}
-            disabled={isConverting}
-            className="w-full transition-all duration-300"
-          >
-            <motion.div
-              animate={isConverting ? { rotate: 360 } : {}}
-              transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
-            >
-              <FileText className="h-5 w-5" />
-            </motion.div>
-            Word
-          </Button>
-        </motion.div>
-        <motion.div 
-          className="flex-1 min-w-[100px]"
-          whileHover={{ scale: 1.02, y: -2 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Button
-            variant="powerpoint"
-            size="lg"
-            onClick={convertToPowerPoint}
-            disabled={isConverting}
-            className="w-full transition-all duration-300"
-          >
-            <motion.div
-              animate={isConverting ? { rotate: 360 } : {}}
-              transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
-            >
-              <Presentation className="h-5 w-5" />
-            </motion.div>
-            PPT
-          </Button>
-        </motion.div>
-        <motion.div 
-          className="flex-1 min-w-[100px]"
-          whileHover={{ scale: 1.02, y: -2 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Button
-            variant="pdf"
-            size="lg"
-            onClick={convertToPDF}
-            disabled={isConverting}
-            className="w-full transition-all duration-300"
-          >
-            <motion.div
-              animate={isConverting ? { rotate: 360 } : {}}
-              transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
-            >
-              <FileDown className="h-5 w-5" />
-            </motion.div>
-            PDF
-          </Button>
-        </motion.div>
-        <motion.div 
-          className="flex-1 min-w-[100px]"
-          whileHover={{ scale: 1.02, y: -2 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Button
-            variant="excel"
-            size="lg"
-            onClick={convertToExcel}
-            disabled={isConverting}
-            className="w-full transition-all duration-300"
-          >
-            <motion.div
-              animate={isConverting ? { rotate: 360 } : {}}
-              transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
-            >
-              <Table className="h-5 w-5" />
-            </motion.div>
-            Excel
-          </Button>
-        </motion.div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.div 
+                className="flex-1 min-w-[100px]"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  variant="word"
+                  size="lg"
+                  onClick={convertToWord}
+                  disabled={isConverting}
+                  className="w-full transition-all duration-300"
+                >
+                  <motion.div
+                    animate={isConverting ? { rotate: 360 } : {}}
+                    transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
+                  >
+                    <FileText className="h-5 w-5" />
+                  </motion.div>
+                  Word
+                </Button>
+              </motion.div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{shortcutLabels.word}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.div 
+                className="flex-1 min-w-[100px]"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  variant="powerpoint"
+                  size="lg"
+                  onClick={convertToPowerPoint}
+                  disabled={isConverting}
+                  className="w-full transition-all duration-300"
+                >
+                  <motion.div
+                    animate={isConverting ? { rotate: 360 } : {}}
+                    transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
+                  >
+                    <Presentation className="h-5 w-5" />
+                  </motion.div>
+                  PPT
+                </Button>
+              </motion.div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{shortcutLabels.powerpoint}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.div 
+                className="flex-1 min-w-[100px]"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  variant="pdf"
+                  size="lg"
+                  onClick={convertToPDF}
+                  disabled={isConverting}
+                  className="w-full transition-all duration-300"
+                >
+                  <motion.div
+                    animate={isConverting ? { rotate: 360 } : {}}
+                    transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
+                  >
+                    <FileDown className="h-5 w-5" />
+                  </motion.div>
+                  PDF
+                </Button>
+              </motion.div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{shortcutLabels.pdf}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.div 
+                className="flex-1 min-w-[100px]"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  variant="excel"
+                  size="lg"
+                  onClick={convertToExcel}
+                  disabled={isConverting}
+                  className="w-full transition-all duration-300"
+                >
+                  <motion.div
+                    animate={isConverting ? { rotate: 360 } : {}}
+                    transition={{ duration: 1, repeat: isConverting ? Infinity : 0 }}
+                  >
+                    <Table className="h-5 w-5" />
+                  </motion.div>
+                  Excel
+                </Button>
+              </motion.div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{shortcutLabels.excel}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <motion.div 
           className="flex-1 min-w-[100px]"
           whileHover={{ scale: 1.02, y: -2 }}
